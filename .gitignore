@@ -1,0 +1,39 @@
+# Node.js
+node_modules/
+.env
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs
+*.log
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Build
+/dist/
+/build/
+
+# Misc
+*.local
+coverage/
+
+# Ignore client and server dependencies
+client/node_modules/
+server/node_modules/
+
+# Ignore environment files
+client/.env
+server/.env
