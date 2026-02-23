@@ -5,7 +5,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: #1e1e1e;
   color: #cccccc;
   overflow: hidden;
@@ -112,10 +112,58 @@ body {
 .file-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 4px 10px 4px 22px;
   font-size: 13px;
   cursor: pointer;
   gap: 6px;
+  position: relative;
+}
+
+.file-item .file-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.file-item .file-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-item .file-actions {
+  display: none;
+  gap: 4px;
+}
+
+.file-item:hover .file-actions {
+  display: flex;
+}
+
+.file-action-btn {
+  background: none;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+
+.file-action-btn:hover {
+  background-color: #3c3c3c;
+  color: #ffffff;
+}
+
+.file-action-btn.delete-btn:hover {
+  background-color: #f48771;
+  color: #1e1e1e;
 }
 
 .file-item:hover {
@@ -264,7 +312,7 @@ body {
   flex: 1;
   padding: 10px 14px;
   overflow-y: auto;
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: "Consolas", "Courier New", monospace;
   font-size: 13px;
 }
 
@@ -283,4 +331,217 @@ body {
 .placeholder-text {
   color: #858585;
   font-style: italic;
+}
+
+/* Terminal Toggle Button */
+.terminal-toggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  background-color: #252526;
+  border-top: 1px solid #333333;
+}
+
+.terminal-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #0e639c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.terminal-toggle-btn:hover {
+  background-color: #1177bb;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background-color: #252526;
+  border: 1px solid #454545;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #454545;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #e7e7e7;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.modal-close:hover {
+  background-color: #3c3c3c;
+  color: #ffffff;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: #3c3c3c;
+  border: 1px solid #454545;
+  border-radius: 4px;
+  color: #e7e7e7;
+  font-size: 14px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal-input:focus {
+  border-color: #007acc;
+}
+
+.modal-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #858585;
+  font-style: italic;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid #454545;
+}
+
+.modal-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background-color: transparent;
+  color: #cccccc;
+  border: 1px solid #454545;
+}
+
+.cancel-btn:hover {
+  background-color: #3c3c3c;
+  color: #ffffff;
+}
+
+.submit-btn {
+  background-color: #0e639c;
+  color: #ffffff;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #1177bb;
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Copied Message */
+.copied-text {
+  font-size: 11px;
+  color: #4ec9b0;
+  font-weight: 600;
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Scrollbar Styling */
+.panel-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 5px;
+}
+
+.panel-content::-webkit-scrollbar-thumb:hover {
+  background: #4e4e4e;
 }

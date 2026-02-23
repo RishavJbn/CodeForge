@@ -88,16 +88,100 @@ function App() {
     );
   };
 
-  const addNewFile = () => {
-    const newId = Date.now().toString();
-    const newFile = {
-      id: newId,
-      name: `untitled - ${files.length + 1}.js`,
-      language: "javascript",
-      content: "// write your code here",
-    };
-    setFiles([...files, newFile]);
-    setActiveFileId(newId);
+  const openCreateFileModal = () => {
+    setModalMode("create");
+    setModalInput("");
+    setShowModal(true);
+  };
+
+  const openRenameModal = (fileId, currentName) => {
+    setModalMode("rename");
+    setModalInput(currentName);
+    setEditingFileId(fileId);
+    setShowModal(true);
+  };
+
+  const handleModalSubmit = () => {
+    if (!modalInput.trim()) return;
+
+    if (modalMode === "create") {
+      const newId = Date.now().toString();
+      const fileName = modalInput.includes(".")
+        ? modalInput
+        : `${modalInput}.js`;
+      const language = fileName.endsWith(".json") ? "json" : "javascript";
+
+      const newFile = {
+        id: newId,
+        name: fileName,
+        language: language,
+        content: language === "json" ? "{\n  \n}" : "// write your code here",
+      };
+      setFiles([...files, newFile]);
+      setActiveFileId(newId);
+    } else if (modalMode === "rename") {
+      const fileName = modalInput.includes(".")
+        ? modalInput
+        : `${modalInput}.js`;
+      setFiles(
+        files.map((f) =>
+          f.id === editingFileId ? { ...f, name: fileName } : f,
+        ),
+      );
+    }
+
+    setShowModal(false);
+    setModalInput("");
+    setEditingFileId(null);
+  };
+
+  const handleModalCancel = () => {
+    setShowModal(false);
+    setModalInput("");
+    setEditingFileId(null);
+  };
+
+  const deleteFile = (fileId, e) => {
+    e.stopPropagation();
+    if (files.length === 1) {
+      alert("Cannot delete the last file!");
+      return;
+    }
+
+    const filteredFiles = files.filter((f) => f.id !== fileId);
+    setFiles(filteredFiles);
+
+    if (activeFileId === fileId) {
+      setActiveFileId(filteredFiles[0].id);
+    }
+  };
+
+  const downloadFile = (file, e) => {
+    e.stopPropagation();
+    const blob = new Blob([file.content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const copyOutput = () => {
+    const textToCopy = output || error;
+    if (textToCopy) {
+      navigator.clipboard.writeText(textToCopy);
+      setCopiedMessage(true);
+      setTimeout(() => setCopiedMessage(false), 2000);
+    }
+  };
+
+  const clearOutput = () => {
+    setOutput("");
+    setError("");
+    setHasExecuted(false);
   };
 
   const runCode = async () => {
@@ -158,8 +242,8 @@ function App() {
             <span>EXPLORER</span>
             <button
               className="icon-button"
-              onClick={addNewFile}
-              title="New File"
+              onClick={openCreateFileModal}
+              title="New File (Click to name)"
             >
               <Plus size={16} />
             </button>
@@ -173,19 +257,47 @@ function App() {
               {files.map((file) => (
                 <div
                   key={file.id}
-                  className={`file - item ${file.id === activeFileId ? "active" : ""} `}
+                  className={`file-item ${file.id === activeFileId ? "active" : ""}`}
                   onClick={() => setActiveFileId(file.id)}
                 >
-                  {file.name.endsWith(".js") ? (
-                    <FileType2
-                      size={14}
-                      color="#f7df1e"
-                      className="file-icon"
-                    />
-                  ) : (
-                    <FileJson size={14} className="file-icon" />
-                  )}
-                  <span>{file.name}</span>
+                  <div className="file-name">
+                    {file.name.endsWith(".js") ? (
+                      <FileType2
+                        size={14}
+                        color="#f7df1e"
+                        className="file-icon"
+                      />
+                    ) : (
+                      <FileJson size={14} className="file-icon" />
+                    )}
+                    <span>{file.name}</span>
+                  </div>
+                  <div className="file-actions">
+                    <button
+                      className="file-action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openRenameModal(file.id, file.name);
+                      }}
+                      title="Rename"
+                    >
+                      <Edit2 size={12} />
+                    </button>
+                    <button
+                      className="file-action-btn"
+                      onClick={(e) => downloadFile(file, e)}
+                      title="Download"
+                    >
+                      <Download size={12} />
+                    </button>
+                    <button
+                      className="file-action-btn delete-btn"
+                      onClick={(e) => deleteFile(file.id, e)}
+                      title="Delete"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -201,7 +313,7 @@ function App() {
             {files.map((file) => (
               <div
                 key={file.id}
-                className={`tab ${file.id === activeFileId ? "active" : ""} `}
+                className={`tab ${file.id === activeFileId ? "active" : ""}`}
                 onClick={() => setActiveFileId(file.id)}
               >
                 {file.name.endsWith(".js") ? (
@@ -218,7 +330,7 @@ function App() {
               onClick={runCode}
               disabled={isLoading}
               className="run-action-button"
-              title="Run Code"
+              title="Run Code (Ctrl+Enter)"
             >
               <Play size={14} fill={isLoading ? "none" : "currentColor"} />
               <span>{isLoading ? "Running..." : "Run"}</span>
@@ -260,9 +372,32 @@ function App() {
                 OUTPUT
               </div>
               <div className="panel-actions">
+                {(output || error) && (
+                  <>
+                    <button
+                      className="icon-button"
+                      onClick={copyOutput}
+                      title="Copy Output"
+                    >
+                      {copiedMessage ? (
+                        <span className="copied-text">Copied!</span>
+                      ) : (
+                        <Copy size={14} />
+                      )}
+                    </button>
+                    <button
+                      className="icon-button"
+                      onClick={clearOutput}
+                      title="Clear Output"
+                    >
+                      <XCircle size={14} />
+                    </button>
+                  </>
+                )}
                 <button
                   className="icon-button"
                   onClick={() => setTerminalOpen(false)}
+                  title="Close Terminal (Ctrl+`)"
                 >
                   <ChevronDown size={14} />
                 </button>
@@ -289,13 +424,75 @@ function App() {
               )}
               {!output && !error && !isLoading && !hasExecuted && (
                 <div className="placeholder-text">
-                  output will appear here...
+                  Output will appear here... (Ctrl+Enter to run)
                 </div>
               )}
             </div>
           </div>
         )}
+
+        {/* Show terminal toggle button when closed */}
+        {!terminalOpen && (
+          <div className="terminal-toggle">
+            <button
+              className="terminal-toggle-btn"
+              onClick={() => setTerminalOpen(true)}
+              title="Show Terminal (Ctrl+`)"
+            >
+              <Terminal size={14} />
+              <span>Show Output</span>
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Modal for file creation/rename */}
+      {showModal && (
+        <div className="modal-overlay" onClick={handleModalCancel}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>
+                {modalMode === "create" ? "Create New File" : "Rename File"}
+              </h3>
+              <button className="modal-close" onClick={handleModalCancel}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <input
+                type="text"
+                className="modal-input"
+                placeholder="Enter file name (e.g., app.js)"
+                value={modalInput}
+                onChange={(e) => setModalInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleModalSubmit();
+                  if (e.key === "Escape") handleModalCancel();
+                }}
+                autoFocus
+              />
+              <p className="modal-hint">
+                Tip: Add .js for JavaScript or .json for JSON files
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="modal-btn cancel-btn"
+                onClick={handleModalCancel}
+              >
+                Cancel
+              </button>
+              <button
+                className="modal-btn submit-btn"
+                onClick={handleModalSubmit}
+                disabled={!modalInput.trim()}
+              >
+                {modalMode === "create" ? "Create" : "Rename"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
