@@ -3,12 +3,13 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 
-const app = express();
+import runRouter from "./routes/run.routes.js";
 
+const app = express();
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL, // your Vite frontend
+    origin: "*", // allow frontend access
     credentials: true,
   }),
 );
@@ -19,7 +20,6 @@ app.use(express.urlencoded({ limit: "16kb" })); //express.
 app.use(cookieParser());
 
 //routes declaration
+app.use("/run", runRouter);
 
-
-//https://localhost:8000/api/v1/dailylog
 export { app };
